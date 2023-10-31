@@ -3,11 +3,11 @@ pub mod chess_serde;
 pub mod server;
 pub mod server_types;
 
-use async_trait::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
 use server_types::EngineInfo;
 use shakmaty::{Chess, Move};
 
+pub use async_trait::async_trait;
 pub use shakmaty;
 
 /// The trait that defines a chess engine.
@@ -50,7 +50,7 @@ pub trait Engine: Send + Sync + Sized {
     ///
     /// When the engine returns this, the relevant operation is retried a few times.
     /// If it fails then, the game is considered forfeit by the engine.
-    type Error: std::error::Error + Clone + Send + Sync;
+    type Error: std::fmt::Debug + std::fmt::Display + Clone + Send + Sync;
 
     fn get_info() -> EngineInfo<Self>;
 
@@ -93,4 +93,16 @@ pub trait Engine: Send + Sync + Sized {
         move_taken: &Move,
         position_after: &Chess,
     ) -> Result<(), Self::Error>;
+}
+
+/// This can be used as the error type for infallible engines.
+/// It is just like [`std::convert::Infallible`], but it implements [`std::fmt::Debug`] + [`std::fmt::Display`],
+/// and so it can be used in the `Engine::Error` type definition.
+#[derive(Clone, Copy, Debug)]
+pub enum InfallibleError {}
+
+impl std::fmt::Display for InfallibleError {
+    fn fmt(&self, _f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        unreachable!()
+    }
 }
