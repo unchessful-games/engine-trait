@@ -7,6 +7,12 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.74"
+axum = { version = "0.6.20", features=["macros"], optional = true }
 rand = "0.8.5"
-serde = "1.0.190"
+serde = { version = "1.0.190", features = ["derive"] }
 shakmaty = "0.26.0"
+tokio = { version = "1.33.0", features = ["sync"], optional = true }
+
+[features]
+server = ["dep:axum", "dep:tokio"]
+default = []
